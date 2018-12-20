@@ -1,2 +1,2 @@
 # powerdns
-Power DNS with MySQL Client
+Docker Power DNS with MySQL Client

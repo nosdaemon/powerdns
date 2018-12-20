@@ -1,7 +1,6 @@
 FROM alpine:3.7
 
-ENV REFRESHED_AT="2018-11-09" \
-    POWERDNS_VERSION=4.1.5 \
+ENV POWERDNS_VERSION=4.1.5 \
     MYSQL_AUTOCONF=true \
     MYSQL_HOST="mysql" \
     MYSQL_PORT="3306" \
@@ -9,8 +8,9 @@ ENV REFRESHED_AT="2018-11-09" \
     MYSQL_PASS="root" \
     MYSQL_DB="pdns"
 
-RUN apk --update add libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-client-libs && \
-    apk add --virtual build-deps \
+RUN apk --update add libpq sqlite-libs libstdc++ libgcc && \
+    apk add --no-cache mysql-client && \
+    apk add --no-cache --virtual build-deps \
     g++ make mariadb-dev postgresql-dev sqlite-dev curl boost-dev && \
     curl -sSL https://downloads.powerdns.com/releases/pdns-$POWERDNS_VERSION.tar.bz2 | tar xj -C /tmp && \
     cd /tmp/pdns-$POWERDNS_VERSION && \
@@ -24,6 +24,11 @@ RUN apk --update add libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-c
     apk del --purge build-deps && \
     mv /tmp/libboost_program_options-mt.so* /usr/lib/ && \
     rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/*
+
+RUN apk add --update tzdata
+ENV TZ=Europe/Stockholm
+
+
 
 ADD schema.sql pdns.conf /etc/pdns/
 ADD entrypoint.sh /
